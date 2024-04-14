@@ -11,7 +11,11 @@ import java.time.LocalDateTime;
 public class UserService {
     private final TelegramUserRepository telegramUserRepository;
 
-    public void register(RegistrationRequest request) {
+    public void createUser(UserRequest request) {
+        if(telegramUserRepository.existsByTelegramId(request.telegramId())){
+            updateUser(request);
+            return;
+        }
         TelegramUser tgUser = new TelegramUser(
                 null,
                 request.telegramId(),
@@ -21,5 +25,13 @@ public class UserService {
                 LocalDateTime.now()
         );
         telegramUserRepository.save(tgUser);
+    }
+
+    public void updateUser(UserRequest request){
+        TelegramUser user = telegramUserRepository.findByTelegramId(request.telegramId());
+        user.setFirstName(request.firstName());
+        user.setLastName(request.lastName());
+        user.setUsername(request.username());
+        telegramUserRepository.save(user);
     }
 }

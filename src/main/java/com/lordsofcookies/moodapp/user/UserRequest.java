@@ -3,7 +3,7 @@ package com.lordsofcookies.moodapp.user;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 
-public record RegistrationRequest(
+public record UserRequest(
         @NotNull
         String telegramId,
         @JsonProperty("first_name")

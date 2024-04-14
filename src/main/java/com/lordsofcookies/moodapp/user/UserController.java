@@ -14,7 +14,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public void register(@RequestBody @Valid RegistrationRequest request){
-        userService.register(request);
+    public void createUser(@RequestBody @Valid UserRequest request){
+        userService.createUser(request);
     }
 }
