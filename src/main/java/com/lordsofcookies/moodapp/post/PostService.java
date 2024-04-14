@@ -1,10 +1,10 @@
 package com.lordsofcookies.moodapp.post;
 
+import com.lordsofcookies.moodapp.CurrentUserUtil;
 import com.lordsofcookies.moodapp.model.Post;
 import com.lordsofcookies.moodapp.model.TelegramUser;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -15,27 +15,35 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
+    private final CurrentUserUtil currentUserUtil;
+    private final PostMapper postMapper;
 
-    public List<Post> getAllPosts() {
-        return postRepository.findAll();
+    public List<PostResponse> getAllPosts() {
+        return postRepository.findAll()
+                .stream()
+                .map(postMapper::entityToResponse)
+                .toList();
     }
 
-    public List<Post> getMyPosts() {
-        TelegramUser currentTgUser = null; // todo: get from security context
-        return postRepository.findAllByUser(currentTgUser);
+    public List<PostResponse> getMyPosts() {
+        TelegramUser currentTgUser = currentUserUtil.getCurrentUser();
+        return postRepository.findAllByUser(currentTgUser)
+                .stream()
+                .map(postMapper::entityToResponse)
+                .toList();
     }
 
-    public Post addPost(Integer emojiId) {
-        TelegramUser currentTgUser = null; // todo: get from security context
+    public PostResponse addPost(Integer emojiId) {
+        TelegramUser currentTgUser = currentUserUtil.getCurrentUser();
         Post post = new Post(null, currentTgUser, emojiId, LocalDateTime.now());
-        return postRepository.save(post);
+        return postMapper.entityToResponse(postRepository.save(post));
     }
 
     public void deletePost(UUID id){
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Post with id" + id + "not found"));
-        TelegramUser currentUserTgId = null; // todo: get from security context
-        if(!post.getUser().equals(currentUserTgId)){
+        TelegramUser currentTgUser = currentUserUtil.getCurrentUser();
+        if(!post.getUser().equals(currentTgUser)){
             throw new RuntimeException("You are not owner of this post");
         }
         postRepository.delete(post);

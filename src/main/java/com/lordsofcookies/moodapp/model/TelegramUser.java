@@ -20,6 +20,7 @@ public class TelegramUser implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "telegram_id")
     private String telegramId;
 
     private String firstName;
