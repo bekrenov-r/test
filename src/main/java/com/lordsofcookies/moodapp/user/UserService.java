@@ -1,6 +1,7 @@
 package com.lordsofcookies.moodapp.user;
 
 import com.lordsofcookies.moodapp.model.TelegramUser;
+import com.lordsofcookies.moodapp.security.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,11 +11,12 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class UserService {
     private final TelegramUserRepository telegramUserRepository;
+    private final JwtProvider jwtProvider;
 
-    public void createUser(UserRequest request) {
+    public String createUser(UserRequest request) {
         if(telegramUserRepository.existsByTelegramId(request.telegramId())){
-            updateUser(request);
-            return;
+            TelegramUser updatedUser = updateUser(request);
+            return jwtProvider.generateToken(updatedUser);
         }
         TelegramUser tgUser = new TelegramUser(
                 null,
@@ -24,14 +26,15 @@ public class UserService {
                 request.username(),
                 LocalDateTime.now()
         );
-        telegramUserRepository.save(tgUser);
+        TelegramUser savedUser = telegramUserRepository.save(tgUser);
+        return jwtProvider.generateToken(savedUser);
     }
 
-    public void updateUser(UserRequest request){
+    public TelegramUser updateUser(UserRequest request){
         TelegramUser user = telegramUserRepository.findByTelegramId(request.telegramId());
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
         user.setUsername(request.username());
-        telegramUserRepository.save(user);
+        return telegramUserRepository.save(user);
     }
 }

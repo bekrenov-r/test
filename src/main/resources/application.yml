@@ -2,7 +2,7 @@ spring:
   application:
     name: mood-app
   datasource:
-    url: jdbc:postgresql://localhost:5432/mood-app
+    url: jdbc:postgresql://localhost:5432/mood_app
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
