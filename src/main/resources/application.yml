@@ -11,3 +11,8 @@ spring:
       permit-all: >
         POST /users,
         GET /posts
+server:
+  port: 8081
+  ssl:
+    key-store: classpath:keystore/mood-app-keystore.p12
+    key-store-password: mood-app-keystore
